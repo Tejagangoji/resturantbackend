@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require("cors");
 const mongoose = require('mongoose');
 const app = express();
-const { User } = require('./Schemas');
+const { User, Product } = require('./Schemas');
 
 app.use(cors());
 app.use(express.json());
@@ -13,6 +13,8 @@ app.get("/", async (req, res) => {
     res.send("dshkb")
 })
 
+
+//user register
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -32,6 +34,8 @@ app.post('/register', async (req, res) => {
     }
 })
 
+
+//user login
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -49,6 +53,60 @@ app.post('/login', async (req, res) => {
         return res.status(500).json(error);
     }
 })
+
+//admin login
+app.post('/adminlogin', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (username === "Admin" && password === "admin123") {
+            return res.status(200).json("Loign sucessfully");
+        }
+        else {
+            return res.status(405).json("Wrong Credentials");
+        }
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+})
+
+//add a product by admin
+app.post('/addproduct', async (req, res) => {
+    try {
+        const { name, image, price, category } = req.body;
+        const product = Product({
+            name,
+            image,
+            price,
+            category
+        });
+        await product.save();
+        return res.status(200).json("Product added succesfully");
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+})
+
+//get the all products
+app.get('/getproducts', async (req, res) => {
+    try {
+        return res.status(200).json(await Product.find());
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+//delete a product
+app.delete('/deleteproduct/:productid', async (req, res) => {
+    try {
+        const {productid} = req.params;
+        await Product.findByIdAndDelete(productid);
+        return res.status(200).json("Deleted sucessfully")
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+
 
 
 app.listen(5000, () => console.log("Server is running"));
