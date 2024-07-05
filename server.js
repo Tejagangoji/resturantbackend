@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require("cors");
 const mongoose = require('mongoose');
 const app = express();
-const { User, Product } = require('./Schemas');
+const { User, Product, Cart } = require('./Schemas');
 
 app.use(cors());
 app.use(express.json());
@@ -42,7 +42,7 @@ app.post('/login', async (req, res) => {
         const user = await User.findOne({ userid: username });
         if (user) {
             if (password === user.password) {
-                return res.status(200).json("Loign sucessfully");
+                return res.status(200).json(user.id);
             }
             else {
                 return res.status(405).json("Wrong password");
@@ -66,6 +66,43 @@ app.post('/adminlogin', async (req, res) => {
         }
     } catch (error) {
         return res.status(500).json(error);
+    }
+})
+
+//add to cart
+app.post('/addtocart', async (req, res) => {
+    try {
+        const { userid, productid, quantity } = req.body;
+        const cart = Cart({
+            userid,
+            productid,
+            quantity
+        });
+        await cart.save();
+        return res.status(200).json("added in to the cart");
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+})
+
+
+//remove from cart
+app.delete('/removefromcart/:id/:userid', async (req, res) => {
+    try {
+        await Cart.deleteOne({ userid: req.params.userid, productid: req.params.id });
+        return res.status(200).json("removed sucessful")
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+})
+
+//get the cart
+app.get('/getthecart/:userid', async (req, res) => {
+    try {
+        const cart = await Cart.find({ userid: req.params.userid }).populate("productid");
+        return res.status(200).json(cart);
+    } catch (error) {
+        return res.status(500).json("server error");
     }
 })
 
@@ -98,7 +135,7 @@ app.get('/getproducts', async (req, res) => {
 //delete a product
 app.delete('/deleteproduct/:productid', async (req, res) => {
     try {
-        const {productid} = req.params;
+        const { productid } = req.params;
         await Product.findByIdAndDelete(productid);
         return res.status(200).json("Deleted sucessfully")
     } catch (error) {

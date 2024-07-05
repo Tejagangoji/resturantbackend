@@ -4,12 +4,15 @@ const userSchema = new mongoose.Schema({
     userid: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String },
-    cart: { type: mongoose.Schema.Types.ObjectId, ref: "Cart" }
 });
 
+
 const cartSchema = new mongoose.Schema({
-    items: [{ productid : { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, quantity: {type: String, default: 1}}]
+    userid: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    productid: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+    quantity: { type: String, required: true },
 });
+
 
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -18,8 +21,8 @@ const productSchema = new mongoose.Schema({
     category: { type: String, require: true },
 });
 
+const Cart = mongoose.model("Cart", cartSchema);
 const User = mongoose.model("User", userSchema);
 const Product = mongoose.model("Product", productSchema);
-const Cart = mongoose.model("Cart", cartSchema);
 
 module.exports = { User, Product, Cart };
