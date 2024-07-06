@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require("cors");
 const mongoose = require('mongoose');
 const app = express();
-const { User, Product, Cart } = require('./Schemas');
+const { User, Product, Cart, Order } = require('./Schemas');
 
 app.use(cors());
 app.use(express.json());
@@ -85,6 +85,17 @@ app.post('/addtocart', async (req, res) => {
     }
 })
 
+//update quantity in cart
+app.put('/updateproduct/:id', async (req, res) => {
+    try {
+        const { quantity } = req.body;
+        await Cart.findByIdAndUpdate(req.params.id, { quantity: quantity });
+        return res.status(200).json("Cart Updated sucessfully");
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+})
+
 
 //remove from cart
 app.delete('/removefromcart/:id/:userid', async (req, res) => {
@@ -105,6 +116,53 @@ app.get('/getthecart/:userid', async (req, res) => {
         return res.status(500).json("server error");
     }
 })
+
+//place an order
+app.post('/placeanorder', async (req, res) => {
+    try {
+        const { userid, cart, address, total, status } = req.body;
+        const order = Order({
+            userid,
+            cart,
+            address,
+            total,
+            status,
+        });
+        await order.save()
+        return res.status(200).json("order is successful")
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+});
+
+//update the status of the order by admin
+app.get('/getorders/:id', async (req, res) => {
+    try {
+        const { status } = req.body;
+        await Order.findByIdAndUpdate(req.params.id, { status })
+        return res.status(200).json("updated sucessfully");
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+});
+
+//get all the order details
+app.get('/getorders', async (req, res) => {
+    try {
+        return res.status(200).json(await Order.find().populate('userid'));
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+});
+
+//get individual the order details
+app.get('/getorders/:id', async (req, res) => {
+    try {
+        return res.status(200).json(await Order.find({ userid: req.params.id }));
+    } catch (error) {
+        return res.status(500).json("server error");
+    }
+});
 
 //add a product by admin
 app.post('/addproduct', async (req, res) => {

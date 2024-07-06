@@ -13,6 +13,13 @@ const cartSchema = new mongoose.Schema({
     quantity: { type: String, required: true },
 });
 
+const orderSchema = new mongoose.Schema({
+    userid: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    cart: { type: Array, required: true },
+    address: { type: Object, require: true },
+    total: { type: String, require: true },
+    status: { type: Boolean, default: true },
+});
 
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -24,5 +31,6 @@ const productSchema = new mongoose.Schema({
 const Cart = mongoose.model("Cart", cartSchema);
 const User = mongoose.model("User", userSchema);
 const Product = mongoose.model("Product", productSchema);
+const Order = mongoose.model("Order", orderSchema);
 
-module.exports = { User, Product, Cart };
+module.exports = { User, Product, Cart, Order };
