@@ -136,7 +136,7 @@ app.post('/placeanorder', async (req, res) => {
 });
 
 //update the status of the order by admin
-app.get('/getorders/:id', async (req, res) => {
+app.put('/updateorders/:id', async (req, res) => {
     try {
         const { status } = req.body;
         await Order.findByIdAndUpdate(req.params.id, { status })
