@@ -79,7 +79,7 @@ app.post('/addtocart', async (req, res) => {
             quantity
         });
         await cart.save();
-        return res.status(200).json("added in to the cart");
+        return res.status(200).json(await Cart.find({ userid: userid }).populate("productid"));
     } catch (error) {
         return res.status(500).json("server error");
     }
@@ -101,7 +101,7 @@ app.put('/updateproduct/:id', async (req, res) => {
 app.delete('/removefromcart/:id/:userid', async (req, res) => {
     try {
         await Cart.deleteOne({ userid: req.params.userid, productid: req.params.id });
-        return res.status(200).json("removed sucessful")
+        return res.status(200).json(await Cart.find({ userid: req.params.userid }).populate("productid"))
     } catch (error) {
         return res.status(500).json("server error");
     }
